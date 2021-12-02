@@ -9,5 +9,5 @@ public class SignupRequestDto {
 
     private String username;
     private String password;
-    private boolean isAdmin;
+    private boolean admin;
 }

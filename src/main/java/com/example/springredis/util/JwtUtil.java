@@ -6,11 +6,13 @@ import com.example.springredis.security.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
+@Getter
 @RequiredArgsConstructor
 @Component
 public class JwtUtil {
@@ -18,8 +20,8 @@ public class JwtUtil {
     private final String JWT_SECRET = "SECRET";
     private final SignatureAlgorithm SIGNATURE = SignatureAlgorithm.HS256;
     private final UserDetailsServiceImpl userDetailsService;
-    public final static long ACCESS_TOKEN_EXP_SECOND = 1000L * 10;
-    public final static long REFRESH_TOKEN_EXP_SECOND = 1000L * 60 ;
+    public final static long ACCESS_TOKEN_EXP_SECOND = 1000L * 60;
+    public final static long REFRESH_TOKEN_EXP_SECOND = 1000L * 180;
 
     private final UserRepository userRepository;
 
@@ -29,7 +31,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(new Date(REFRESH_TOKEN_EXP_SECOND))
+                .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXP_SECOND))
                 .signWith(SIGNATURE, JWT_SECRET)
                 .compact();
     }
@@ -40,7 +42,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setClaims(claims)
-                .setExpiration(new Date(ACCESS_TOKEN_EXP_SECOND))
+                .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXP_SECOND))
                 .signWith(SIGNATURE, JWT_SECRET)
                 .compact();
     }
@@ -51,6 +53,7 @@ public class JwtUtil {
     }
 
     public boolean isValidToken(String token){
+
         Claims claims = getAllClaims(token);
 
         Date expiration = claims.getExpiration();
